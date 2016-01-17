@@ -15,17 +15,17 @@ int main (void) {
 	// setup your processList
 	int i;
 	for (i = 0; i < MAX_THREADS; i++)
-		threadList [i].state = NO_PROCESS;
+		threadList [i].state = NO_THREAD;
 	currThread = 0;
 
 	// add your threads
 	int threadID;
-	threadID = scheduler_addThread (&functionGreen);
-	threadID = scheduler_addThread (&functionRed);
+	threadID = scheduler_startThread (&functionGreen);
+	threadID = scheduler_startThread (&functionRed);
 
 	while (1==1) {
 
 		// currently do nothing
-
+		// just loafing aroung
 	}
 }
