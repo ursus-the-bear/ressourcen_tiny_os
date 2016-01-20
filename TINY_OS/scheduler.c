@@ -17,13 +17,14 @@ int scheduler_getFreeThread () {
 	// didn't your parents tell you not to speak until you are spoken to?
 	_disable_interrupts();
 
-	// find the spot you want to place the thread at
+	// find the spot you want to place the thread
 	int RC;
+	int i;
 	RC = ERROR_THREAD;
-	for (int i = 0; i < MAX_THREADS; i++) {
-		if (threadList [i].state == NO_THREAD) {
+	for (i = 0; i < MAX_THREADS; i++) {
+		if (threadList [i].state == FREE) {
 			RC = i;
-			i = MAX_THREADS;
+			break;
 		}
 	}
 
@@ -35,34 +36,29 @@ int scheduler_getFreeThread () {
 }
 
 // start a thread
-int scheduler_startThread(int threadNo) {
+int scheduler_startThread (void (*funcPtr)()) {
 
 	// do not process interrupts when I am busy
 	_disable_interrupts();
 
-	// check if there is even a thread there
-	if (threadList [threadNo].state == NO_THREAD) {
-		_enable_interrupts ();
-		return ERROR_THREAD;
-	}
+	// get the next thread
+	int threadID = scheduler_getFreeThread ();
+	if (threadID == NO_THREAD) return threadID;
 
-	// is this thread already running
-	if (threadList [threadNo].state == RUNNING) {
-		_enable_interrupts ();
-		return threadNo;
-	}
+	// setup your thread array
+	threadList[threadID].funcPtr = funcPtr;
+	threadList[threadID].state = WAITING;
 
-	// ok, you need to start the thread
-	currThread = threadNo;
-	if (setjmp (threadList [threadNo].context) == 0) {
-		// now that everything is setup nothing left to do
+	// save the current state of the
+	if (setjmp (threadList [threadID].context) == 0) {
+		// now that everything is setup nothing left to do but go back to the caller
 		_enable_interrupts ();
-		return threadNo;
+		return threadID;
 	} else {
-		// when do you get here?
+		// ok, the longjmp has been called
 		_enable_interrupts ();
-		threadList [threadNo]->funcPtr ();		// basically run the function you are passing to it
-		scheduler_killThread(threadNo);			// once you get here you are finished so stop
+		threadList [threadID].funcPtr();		// basically run the function you are passing to it
+		scheduler_killThread(threadID);			// once you get here you are finished so stop
 		return ERROR_THREAD;
 	}
 }
@@ -108,25 +104,17 @@ void scheduler_runNextThread() {
 	if (threadID == ERROR_THREAD) return;
 
 	// now switch according to the state of the thread
-	switch (threadList [threadID].state) {
+	switch (threadList[threadID].state) {
+	case RUNNING: break ; // not sure I need this as I only return WAITING threads
 	case WAITING:
 		if (setjmp(threadList[threadID].context) == 0) {
-			if (gThreads[gRunningThread].state == THREAD_RUNNING)
-				gThreads[gRunningThread].state = THREAD_READY;
-			gRunningThread = nextThread;
-			gThreads[gRunningThread].state = THREAD_RUNNING;
-			longjmp(gThreads[gRunningThread].context, 1);
+			if (threadList[currThread].state == RUNNING)
+				threadList[currThread].state = WAITING;
+			currThread = threadID;
+			threadList[currThread].state = RUNNING;
+			longjmp(threadList[currThread].context, 1);
 		}
 	}
-
-	//
-//	threadID nextThread ;//determine next Thread (round robin)
-//	switch(gThreads[nextThread].state) {
-//	case THREAD_RUNNING: break; // already running
-//	case THREAD_READY:
-//		break;
-//		default: break; // no thread to run -> sleep no atomic
-//	}
 
 	// ok, now we can process interrupts again
 	_enable_interrupts ();
@@ -137,7 +125,7 @@ void scheduler_killThread (int threadNo) {
 	_disable_interrupts();
 
 	// just say this position is empty
-	threadList [threadNo].state = NO_THREAD;
+	threadList [threadNo].state = FREE;
 
 	// ok, what is it that you wanted
 	_enable_interrupts ();

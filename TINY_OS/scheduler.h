@@ -16,25 +16,25 @@ typedef enum {
 	RUNNING,
 	WAITING,
 	BLOCKED,
-	NO_THREAD
+	FREE
 } states_t;
-
 
 // what info am I keeping per thread
 typedef struct _thread {
 	states_t state;
-	void * funcPtr;
+	void (*funcPtr)();
 	jmp_buf context;
 
 } thread_t;
 
 #define MAX_THREADS 10
 #define ERROR_THREAD -1
+#define NO_THREAD -2
 
 extern thread_t threadList [MAX_THREADS];
 extern int currThread;
 
-int scheduler_startThread (int threadNo);
+int scheduler_startThread (void (*funcPtr)());
 void scheduler_runNextThread ();
 void scheduler_killThread (int threadNo);
 

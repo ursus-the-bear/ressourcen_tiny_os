@@ -10,6 +10,7 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
+"./interrupt.obj" \
 "./main.obj" \
 "./scheduler.obj" \
 "./testFunc.obj" \
@@ -151,8 +152,8 @@ TINY_OS.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(EXE_OUTPUTS__QUOTED)$(BIN_OUTPUTS__QUOTED)
-	-$(RM) "main.pp" "scheduler.pp" "testFunc.pp" 
-	-$(RM) "main.obj" "scheduler.obj" "testFunc.obj" 
+	-$(RM) "interrupt.pp" "main.pp" "scheduler.pp" "testFunc.pp" 
+	-$(RM) "interrupt.obj" "main.obj" "scheduler.obj" "testFunc.obj" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

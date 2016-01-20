@@ -1,1 +1,1 @@
-"./main.obj" "./scheduler.obj" "./testFunc.obj" "../lnk_msp430g2553.cmd" -l"libc.a" 
+"./interrupt.obj" "./main.obj" "./scheduler.obj" "./testFunc.obj" "../lnk_msp430g2553.cmd" -l"libc.a" 
