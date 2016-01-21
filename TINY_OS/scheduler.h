@@ -35,6 +35,9 @@ typedef struct _thread {
 extern thread_t threadList [MAX_THREADS];
 extern int currThread;
 
+int atomic_start ();
+int atomic_end ();
+
 int scheduler_startThread (void (*funcPtr)());
 void scheduler_runNextThread ();
 void scheduler_killThread (int threadNo);

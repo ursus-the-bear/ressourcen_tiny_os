@@ -10,8 +10,22 @@
 
 thread_t threadList [MAX_THREADS];
 int currThread;
-
-// where is your next free spot
+unsigned int interrupts_disabled_count = 0;
+//
+int atomic_start () {
+	if (0 == interrupts_disabled_count) {
+		__disable_interrupt();
+	}
+	interrupts_disabled_count++;
+}
+//
+int atomic_end () {
+	if (1 == interrupts_disabled_count) {
+		__enable_interrupt();
+	} else
+	interrupts_disabled_count--;
+}
+// where is your next free slot
 int scheduler_getFreeThread () {
 
 	// didn't your parents tell you not to speak until you are spoken to?
