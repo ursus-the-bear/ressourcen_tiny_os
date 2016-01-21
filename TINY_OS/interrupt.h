@@ -8,7 +8,7 @@
 #ifndef INTERRUPT_H_
 #define INTERRUPT_H_
 
-#define CHANGETIMETHREAD 5
+#define CHANGETIMETHREAD 500
 int timeThread;
 
 void setupTimer ();

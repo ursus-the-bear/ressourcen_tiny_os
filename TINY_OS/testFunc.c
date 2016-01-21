@@ -38,37 +38,43 @@ void delay (int secsToWait) {
 	// --> 1s 		 = 16.000.000
 
 }
+
+
 // red for 2 secs
 void functionRed () {
 	timeThread = 0;
-	while(timeThread <= REPEATTIMEFUNC){ // repeat until past 2 secens
-		// switch red on
-		P1OUT &= ~GREEN_LED;	// Green off
-		P1OUT |= RED_LED;		// Red on
 
-		// wait
-		delay (2);
+	// switch red on
+	P1OUT &= ~GREEN_LED;	// Green off
+	P1OUT |= RED_LED;		// Red on
 
-		// everything off
-		P1OUT &= ~GREEN_LED;	// Green off
-		P1OUT &= ~RED_LED;		// Red off
-		delay (2);
+	int i;
+	while(timeThread <= REPEATTIMEFUNC){
+		i = timeThread;
 	}
+
+	// everything off
+	P1OUT &= ~GREEN_LED;	// Green off
+	P1OUT &= ~RED_LED;		// Red off
+
 }
 // green for 2 secs
 void functionGreen () {
 	timeThread = 0;
-	while(timeThread <= REPEATTIMEFUNC){ // repeat until past 2 secens
+
 		// switch red on
-		P1OUT |= GREEN_LED;		// Green on
-		P1OUT &= ~RED_LED;		// Red off
+	P1OUT |= GREEN_LED;		// Green on
+	P1OUT &= ~RED_LED;		// Red off
 
-		// wait
-		delay (2);
+	//wait
+	int i;
 
-		// everything off
-		P1OUT &= ~GREEN_LED;	// Green off
-		P1OUT &= ~RED_LED;		// Red off
-		delay (2);
+	while(timeThread <= REPEATTIMEFUNC){
+		i = timeThread;
 	}
+
+	// everything off
+	P1OUT &= ~GREEN_LED;	// Green off
+	P1OUT &= ~RED_LED;		// Red off
+
 }

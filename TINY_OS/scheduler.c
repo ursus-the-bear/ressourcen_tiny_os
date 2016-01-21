@@ -74,11 +74,11 @@ int scheduler_getNextThreadToRun () {
 	int i;
 	int arrayPos;
 	// which count are you at
-	for (i = 0; i < MAX_THREADS; i++) {
+	for (i = 1; i < MAX_THREADS; i++) {
 		// find the position you need to check in the loop
 		arrayPos = currThread + i; // this is where you are now
 		if (arrayPos > MAX_THREADS) // you are over your array so go to the beginning of the loop -> saves you 2 loops :o)
-			arrayPos = MAX_THREADS - (i + currThread);
+			arrayPos =  (i + currThread - 1) - MAX_THREADS;
 
 		// now check that position
 		if (threadList [arrayPos].state == WAITING) {
