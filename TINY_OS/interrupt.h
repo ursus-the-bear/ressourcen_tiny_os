@@ -8,11 +8,8 @@
 #ifndef INTERRUPT_H_
 #define INTERRUPT_H_
 
-#define CHANGETIMETHREAD 500
-int timeThread;
+extern int iLEDonCount;
 
 void setupTimer ();
-
-
 
 #endif /* INTERRUPT_H_ */

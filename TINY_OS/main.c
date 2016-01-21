@@ -27,12 +27,9 @@ int main (void) {
 	threadID = scheduler_startThread (&functionGreen);
 	threadID = scheduler_startThread (&functionRed);
 	threadID = scheduler_startThread (&functionGreen);
-	//threadID = scheduler_startThread (&functionRed);
-//	threadID = scheduler_startThread (&functionGreen);
-//	threadID = scheduler_startThread (&functionRed);
-
-	// thread 9 und 10 sind leer - damit kann ich mein thread array prüfen
-
+	threadID = scheduler_startThread (&functionRed);
+	threadID = scheduler_startThread (&functionGreen);
+    threadID = scheduler_startThread (&functionRed);
 
 	// ok, now enable the interrupts for everything to just magically start
 	__enable_interrupt();

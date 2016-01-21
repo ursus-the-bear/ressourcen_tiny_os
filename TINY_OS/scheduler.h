@@ -28,7 +28,7 @@ typedef struct _thread {
 
 } thread_t;
 
-#define MAX_THREADS 5
+#define MAX_THREADS 10
 #define ERROR_THREAD -1
 #define NO_THREAD -2
 
@@ -38,7 +38,5 @@ extern int currThread;
 int scheduler_startThread (void (*funcPtr)());
 void scheduler_runNextThread ();
 void scheduler_killThread (int threadNo);
-
-
 
 #endif /* SCHEDULER_H_ */

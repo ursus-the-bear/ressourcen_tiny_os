@@ -9,14 +9,12 @@
 #include "interrupt.h"
 #include "scheduler.h"
 
-#define ONE_SECOND 512
+#define TIME_TO_CALL_SCHEDULER  5000 // timer triggers once a second i.e. change threads every 5 seconds
 
-
-int changeThreadTimer = 0;
+int callScheduler;
+int iLEDonCount;
 
 void setupTimer (void) {
-
-	// this code is from the morse example
 
 	// This sets the MSP430's clock to a factory calibrated 1 MHz,
 	// which means that any delays we specify will be more accurate
@@ -31,35 +29,25 @@ void setupTimer (void) {
 			ID_0 + 					// ???
 			MC_1 + 					// ???
 			TACLR;					// Clear timer
-	TACCR0 = 1000000; 					// 1 ms @ 1MHz   1 sec
 
-	// end of morse example
+	TACCR0 = 1000; 					// 1 ms @ 1MHz i.e. timer gets called every second
 
-	// this code from here: http://forum.allaboutcircuits.com/blog/msp430-long-timer-count.552/
-
-	  // Set up 32768Hz crystal
-//	  BCSCTL1 |= DIVA_3;    // divide by 8
-//	  BCSCTL3 |= XCAP_3;    // select 12pF caps
-
-	  // initialize Timer0_A
-//	  TA0CCR0 = 5 * ONE_SECOND;     // set up terminal count for 10s
-//	  TA0CTL = TASSEL_1 + ID_3 + MC_1; // configure and start timer
-
-//		CCTL0 = CCIE;					// CCRO Interrupt enable
-	//  TA0CCTL0_bit.CCIE = 1;   // enable timer interrupts
-
-
+	// initialise your schedule timer
+	callScheduler = 0;
+	iLEDonCount = 0;
 }
 
 
 #pragma vector=TIMER0_A0_VECTOR
 __interrupt void timer (void) {
 
-	timeThread++; // increase timer
-	changeThreadTimer++;
+	// up your timers
+	callScheduler++;
+	iLEDonCount++;	// ie. LED has been ON for another ms
 
-	if(changeThreadTimer >= CHANGETIMETHREAD){  // time to change a Thread
-		changeThreadTimer = 0;
+	// do we need to call the scheduler
+	if(callScheduler >= TIME_TO_CALL_SCHEDULER) {
+		callScheduler = 0;
 		scheduler_runNextThread ();
 	}
 
