@@ -11,6 +11,7 @@
 #define BUTTON  	BIT3 // Port 1.3
 #define RED_LED   	BIT0 // Port 1.0
 #define GREEN_LED  	BIT6 // Port 1.6
+#define REPEATTIMEFUNC 2000
 
 void setupTestFuncs ();
 void delay (int secsToWait);

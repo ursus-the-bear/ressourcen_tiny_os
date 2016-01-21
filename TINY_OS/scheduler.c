@@ -15,7 +15,7 @@ int currThread;
 int scheduler_getFreeThread () {
 
 	// didn't your parents tell you not to speak until you are spoken to?
-	_disable_interrupts();
+	__disable_interrupt();
 
 	// find the spot you want to place the thread
 	int RC;
@@ -29,7 +29,7 @@ int scheduler_getFreeThread () {
 	}
 
 	// ok, what is it that you wanted
-	_enable_interrupts ();
+	//__enable_interrupt();
 
 	// and return the first space you found
 	return RC;
@@ -39,7 +39,7 @@ int scheduler_getFreeThread () {
 int scheduler_startThread (void (*funcPtr)()) {
 
 	// do not process interrupts when I am busy
-	_disable_interrupts();
+	__disable_interrupt();
 
 	// get the next thread
 	int threadID = scheduler_getFreeThread ();
@@ -52,11 +52,11 @@ int scheduler_startThread (void (*funcPtr)()) {
 	// save the current state of the
 	if (setjmp (threadList [threadID].context) == 0) {
 		// now that everything is setup nothing left to do but go back to the caller
-		_enable_interrupts ();
+		__enable_interrupt ();
 		return threadID;
 	} else {
 		// ok, the longjmp has been called
-		_enable_interrupts ();
+		__enable_interrupt();
 		threadList [threadID].funcPtr();		// basically run the function you are passing to it
 		scheduler_killThread(threadID);			// once you get here you are finished so stop
 		return ERROR_THREAD;
@@ -66,7 +66,7 @@ int scheduler_startThread (void (*funcPtr)()) {
 int scheduler_getNextThreadToRun () {
 
 	// didn't your parents tell you not to speak until you are spoken to?
-	_disable_interrupts();
+	__disable_interrupt();
 
 	// find the next thread AFTER the current one (looping the array if need be)
 	int RC;
@@ -74,7 +74,7 @@ int scheduler_getNextThreadToRun () {
 	int i;
 	int arrayPos;
 	// which count are you at
-	for (i = 1; i < MAX_THREADS; i++) {
+	for (i = 0; i < MAX_THREADS; i++) {
 		// find the position you need to check in the loop
 		arrayPos = currThread + i; // this is where you are now
 		if (arrayPos > MAX_THREADS) // you are over your array so go to the beginning of the loop -> saves you 2 loops :o)
@@ -83,12 +83,16 @@ int scheduler_getNextThreadToRun () {
 		// now check that position
 		if (threadList [arrayPos].state == WAITING) {
 			RC = arrayPos;
-			i = MAX_THREADS;
+			i = MAX_THREADS;  // now you get the next free thread, give it back and start working!
+			// __enable_interrupt(); error so you start interrupts again in the process, but you don't want
+
+			// and return the first space you found
+			return RC;
 		}
 	}
 
 	// ok, what is it that you wanted
-	_enable_interrupts ();
+	//__enable_interrupt();
 
 	// and return the first space you found
 	return RC;
@@ -97,37 +101,45 @@ int scheduler_getNextThreadToRun () {
 void scheduler_runNextThread() {
 
 	// do not process interrupts when I am busy
-	_disable_interrupts();
+	//_disable_interrupts();
+	__disable_interrupt();
 
 	// which thread do we need to run now
 	int threadID = scheduler_getNextThreadToRun();
-	if (threadID == ERROR_THREAD) return;
+	if (threadID == ERROR_THREAD) {__enable_interrupt(); return;}
 
 	// now switch according to the state of the thread
 	switch (threadList[threadID].state) {
 	case RUNNING: break ; // not sure I need this as I only return WAITING threads
 	case WAITING:
-		if (setjmp(threadList[threadID].context) == 0) {
-			if (threadList[currThread].state == RUNNING)
-				threadList[currThread].state = WAITING;
+		if(currThread == -1){
 			currThread = threadID;
 			threadList[currThread].state = RUNNING;
 			longjmp(threadList[currThread].context, 1);
+		}else{
+			if (setjmp(threadList[currThread].context) == 0) {
+				if (threadList[currThread].state == RUNNING)
+					threadList[currThread].state = WAITING;
+				currThread = threadID;
+				threadList[currThread].state = RUNNING;
+				longjmp(threadList[currThread].context, 1);
+			}
 		}
 	}
 
 	// ok, now we can process interrupts again
-	_enable_interrupts ();
+	//_enable_interrupts ();
+	__enable_interrupt();
 }
 void scheduler_killThread (int threadNo) {
 
 	// children should be seen and not heard
-	_disable_interrupts();
+	__disable_interrupt();
 
 	// just say this position is empty
 	threadList [threadNo].state = FREE;
 
 	// ok, what is it that you wanted
-	_enable_interrupts ();
+	__enable_interrupt();
 
 }

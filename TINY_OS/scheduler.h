@@ -8,6 +8,7 @@
 #ifndef SCHEDULER_H_
 #define SCHEDULER_H_
 
+#include <msp430.h>
 #include <inttypes.h>
 #include <setjmp.h>
 
@@ -27,7 +28,7 @@ typedef struct _thread {
 
 } thread_t;
 
-#define MAX_THREADS 10
+#define MAX_THREADS 5
 #define ERROR_THREAD -1
 #define NO_THREAD -2
 
@@ -37,6 +38,7 @@ extern int currThread;
 int scheduler_startThread (void (*funcPtr)());
 void scheduler_runNextThread ();
 void scheduler_killThread (int threadNo);
+
 
 
 #endif /* SCHEDULER_H_ */
