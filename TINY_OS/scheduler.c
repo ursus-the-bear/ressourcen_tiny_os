@@ -12,24 +12,24 @@ thread_t threadList [MAX_THREADS];
 int currThread;
 unsigned int interrupts_disabled_count = 0;
 //
-int atomic_start () {
-	if (0 == interrupts_disabled_count) {
+void atomic_start () {
+//	if (0 == interrupts_disabled_count) {
 		__disable_interrupt();
-	}
+//	}
 	interrupts_disabled_count++;
 }
 //
-int atomic_end () {
-	if (1 == interrupts_disabled_count) {
+void atomic_end () {
+//	if (1 == interrupts_disabled_count) {
 		__enable_interrupt();
-	} else
+//	} else
 	interrupts_disabled_count--;
 }
 // where is your next free slot
 int scheduler_getFreeThread () {
 
 	// didn't your parents tell you not to speak until you are spoken to?
-	__disable_interrupt();
+	atomic_start ();
 
 	// find the spot you want to place the thread
 	int RC;
@@ -43,7 +43,7 @@ int scheduler_getFreeThread () {
 	}
 
 	// ok, what is it that you wanted
-	//__enable_interrupt();
+	// atomic_end ();    ==> ????
 
 	// and return the first space you found
 	return RC;
@@ -53,7 +53,7 @@ int scheduler_getFreeThread () {
 int scheduler_startThread (void (*funcPtr)()) {
 
 	// do not process interrupts when I am busy
-	__disable_interrupt();
+	atomic_start ();
 
 	// get the next thread
 	int threadID = scheduler_getFreeThread ();
@@ -66,11 +66,11 @@ int scheduler_startThread (void (*funcPtr)()) {
 	// save the current state of the
 	if (setjmp (threadList [threadID].context) == 0) {
 		// now that everything is setup nothing left to do but go back to the caller
-		__enable_interrupt ();
+		atomic_end ();
 		return threadID;
 	} else {
 		// ok, the longjmp has been called
-		__enable_interrupt();
+		atomic_end ();
 		threadList [threadID].funcPtr();		// basically run the function you are passing to it
 		scheduler_killThread(threadID);			// once you get here you are finished so stop
 		return ERROR_THREAD;
@@ -80,7 +80,7 @@ int scheduler_startThread (void (*funcPtr)()) {
 int scheduler_getNextThreadToRun () {
 
 	// didn't your parents tell you not to speak until you are spoken to?
-	__disable_interrupt();
+	atomic_start ();
 
 	// find the next thread AFTER the current one (looping the array if need be)
 	int RC;
@@ -98,7 +98,7 @@ int scheduler_getNextThreadToRun () {
 		if (threadList [arrayPos].state == WAITING) {
 			RC = arrayPos;
 			i = MAX_THREADS;  // now you get the next free thread, give it back and start working!
-			// __enable_interrupt(); error so you start interrupts again in the process, but you don't want
+			// atomic_end ();
 
 			// and return the first space you found
 			return RC;
@@ -106,7 +106,7 @@ int scheduler_getNextThreadToRun () {
 	}
 
 	// ok, what is it that you wanted
-	//__enable_interrupt();
+	atomic_end ();
 
 	// and return the first space you found
 	return RC;
@@ -115,8 +115,7 @@ int scheduler_getNextThreadToRun () {
 void scheduler_runNextThread() {
 
 	// do not process interrupts when I am busy
-	//_disable_interrupts();
-	__disable_interrupt();
+	atomic_start ();
 
 	// which thread do we need to run now
 	int threadID = scheduler_getNextThreadToRun();
@@ -142,18 +141,17 @@ void scheduler_runNextThread() {
 	}
 
 	// ok, now we can process interrupts again
-	//_enable_interrupts ();
-	__enable_interrupt();
+	atomic_end ();
 }
 void scheduler_killThread (int threadNo) {
 
 	// children should be seen and not heard
-	__disable_interrupt();
+	atomic_start ();
 
 	// just say this position is empty
 	threadList [threadNo].state = FREE;
 
 	// ok, what is it that you wanted
-	__enable_interrupt();
+	atomic_end ();
 
 }

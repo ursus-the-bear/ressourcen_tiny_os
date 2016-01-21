@@ -2,9 +2,6 @@
 #include "testFunc.h"
 #include "scheduler.h"
 #include "interrupt.h"
-
-// list of my processes
-
 /*
  * main.c
  */
